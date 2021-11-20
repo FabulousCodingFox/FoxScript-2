@@ -7,8 +7,9 @@ class Namespace:
         self.rawcontent=""
 
 class Function:
-    def __init__(self) -> None:
-        pass
+    def __init__(self,name) -> None:
+        self.name=name
+        self.rawcontent=""
 
 def removeUnnededLinesAndSpaces(txt):
     instr=False;newtxt=[]
@@ -42,10 +43,40 @@ def extractNamespacesFromText(txt):
                 cont=txt[startindex:stopindex]
                 firstbracketindex=min([charn if char=="{" else 1000 for charn,char in enumerate(list(cont))])
 
-                namespaces.append(Namespace(txt[startindex:stopindex][6:firstbracketindex]))
+                namespaces.append(Namespace(txt[startindex:stopindex][len(config["Keywords"]["class"])+1:firstbracketindex]))
                 namespaces[-1].rawcontent = txt[startindex+firstbracketindex+1:stopindex]
     
     return namespaces
 
 
+
+def extractFunctionsFromText(txt):
+    startindex=0
+    stopindex=0
+    startintendation=0
+    indent=0
+    functions=[]
+
+    for chrnum,chr in enumerate(list(txt)):
+
+        if txt[chrnum:].startswith(config["Keywords"]["function"]):
+            startintendation = indent
+            startindex = chrnum
+
+        if chr=="{":indent+=1
+        if chr=="}":
+            indent-=1
+            if indent==startintendation:
+                stopindex = chrnum
+
+                cont=txt[startindex:stopindex]
+                firstbracketindex=min([charn if char=="{" else 1000 for charn,char in enumerate(list(cont))])
+
+                functions.append(Function(txt[startindex:stopindex][len(config["Keywords"]["function"])+1:firstbracketindex]))
+                functions[-1].rawcontent = txt[startindex+firstbracketindex+1:stopindex]
+    
+    return functions
+
+def genDatapackFromNamespaces(namespaces):
+    pass
     
